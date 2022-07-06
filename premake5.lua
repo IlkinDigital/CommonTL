@@ -27,7 +27,8 @@ project "CommonTL"
     files
     {
         "%{prj.name}/Source/**.h",
-        "%{prj.name}/Source/**.cpp"
+        "%{prj.name}/Source/**.cpp",
+        "%{prj.name}/Include/**.h"
     }
 
     includedirs

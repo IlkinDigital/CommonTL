@@ -1,3 +1,6 @@
 #pragma once
 
-#include <string>
+#include <stdlib.h>
+#include <string.h>
+
+#include "Core.h"
