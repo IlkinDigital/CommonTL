@@ -1,14 +1,11 @@
 #pragma once
 
-#ifndef CTL_LIST_H
-#define CTL_LIST_H
-
 #include <ostream>
 
 namespace CTL
 {
 	template<typename Ty>
-	class LinkedList
+	class LinkedList : public Object
 	{
 	public:
 		struct Node
@@ -71,8 +68,8 @@ namespace CTL
 			}
 		}
 
-		const Node* Head() const { return m_Head; }
-		const Node* Foot() const { return m_Tail; }
+		const Ty& Head() const { return m_Head->Data; }
+		const Ty& Foot() const { return m_Tail->Data; }
 
 		size_t Size() const { return m_Size; }
 
@@ -98,6 +95,7 @@ namespace CTL
 
 			m_Size++;
 		}
+
 		void PushFront(const Ty& value)
 		{
 			if (m_Head == nullptr)
@@ -118,6 +116,7 @@ namespace CTL
 
 			m_Size++;
 		}
+
 		void PopBack()
 		{
 			if (m_Head == nullptr) {}
@@ -142,6 +141,7 @@ namespace CTL
 			}
 
 		}
+
 		void PopFront()
 		{
 			if (m_Head == nullptr) {}
@@ -241,7 +241,7 @@ namespace CTL
 		{
 			Node* current = m_Head;
 
-			std::cout << "[ ";
+			stream << "[ ";
 			while (current != nullptr)
 			{
 				std::cout << current->Data << ", ";
@@ -258,5 +258,3 @@ namespace CTL
 
 
 }
-
-#endif

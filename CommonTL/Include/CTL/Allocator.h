@@ -1,12 +1,16 @@
 #pragma once
 
-#include <stdlib.h>
+#include "CoreMinimal.h"
 
 namespace CTL
 {
 	template<typename Ty>
 	class Allocator
 	{
+		template<typename Ty, typename PriorityTy>
+		friend class PriorityQueue;
+		template<typename Ty>
+		friend class Vector;
 	public:
 		Allocator() = default;
 		Allocator(const Allocator& other)
@@ -25,6 +29,7 @@ namespace CTL
 
 		size_t Capacity() const { return m_Capacity; }
 
+	protected:
 		// If there is a free space in the buffer then it emplaces it (reallocates otherwise)
 		virtual void PushBack(const Ty& data)
 		{
@@ -86,7 +91,6 @@ namespace CTL
 		{
 			return m_Buffer[index];
 		}
-	protected:
 		// Reallocates the array to a given capacity and copies previous elements
 		void ReAlloc(size_t capacity)
 		{
@@ -112,4 +116,5 @@ namespace CTL
 		size_t m_Size = 0;
 		size_t m_Capacity = 0;
 	};
+
 }

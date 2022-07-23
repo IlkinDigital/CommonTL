@@ -1,10 +1,8 @@
 #pragma once
 
-#ifndef CTL_VECTOR_H
-#define CTL_VECTOR_H
-
 #include <ostream>
 
+#include "CoreMinimal.h"
 #include "ctl/Allocator.h"
 
 namespace CTL
@@ -44,9 +42,9 @@ namespace CTL
 			return iterator;
 		}
 
-		ReferenceType operator[](int index) const { return *(m_Ptr + index); }
+		ReferenceType operator[](int index) const { return *(this + index); }
 		PointerType operator->() const { return m_Ptr; }
-		ReferenceType operator*() const { return *m_Ptr; }
+		ReferenceType operator*() const { return *this; }
 
 		bool operator==(const VectorIterator& other) const { return m_Ptr == other.m_Ptr; }
 		bool operator!=(const VectorIterator& other) const { return m_Ptr != other.m_Ptr; }
@@ -55,7 +53,7 @@ namespace CTL
 	};
 
 	template<typename Ty>
-	class Vector : public Allocator<Ty>
+	class Vector : public Object
 	{
 	public:
 		using ValueType = Ty;
@@ -63,72 +61,86 @@ namespace CTL
 	public:
 		Vector()
 		{
-			this->Reserve(2);
+			m_Allocator.Reserve(2);
 		}
 		Vector(const size_t& size)
 		{
-			this->Reserve(size);
+			m_Allocator.Reserve(size);
+		}
+
+		void PushBack(const Ty& data)
+		{
+			m_Allocator.PushBack(data);
 		}
 
 		void Insert(size_t index, const Ty& data)
 		{
-			if (index <= this->m_Size)
+			if (index <= m_Allocator.m_Size)
 			{
-				if (this->m_Capacity < this->m_Size + 1)
-					this->Reserve(this->m_Capacity + this->m_Capacity / 2);
+				if (m_Allocator.m_Capacity < m_Allocator.m_Size + 1)
+					m_Allocator.Reserve(m_Allocator.m_Capacity + m_Allocator.m_Capacity / 2);
 
 				// Push back the last element of an array
-				this->PushBack(this->m_Buffer[this->m_Size - 1]);
+				m_Allocator.PushBack(m_Allocator.m_Buffer[m_Allocator.m_Size - 1]);
 
 				// Swap adjacent elements from the end until the insertion index, to shift them to the left
-				for (size_t i = this->m_Size - 2; i > index; i--)
+				for (size_t i = m_Allocator.m_Size - 2; i > index; i--)
 				{
-					Ty tmp = this->m_Buffer[i];
-					this->m_Buffer[i] = this->m_Buffer[i - 1];
-					this->m_Buffer[i - 1] = tmp;
+					Ty tmp = m_Allocator.m_Buffer[i];
+					m_Allocator.m_Buffer[i] = m_Allocator.m_Buffer[i - 1];
+					m_Allocator.m_Buffer[i - 1] = tmp;
 				}
 
-				this->m_Buffer[index] = data;
+				m_Allocator.m_Buffer[index] = data;
 			}
 		}
 
 		void Remove(size_t index)
 		{
-			if (index >= 0 && index < this->m_Size)
+			if (index >= 0 && index < m_Allocator.m_Size)
 			{ 
-				for (size_t i = 0, i2 = 0; i < this->m_Size - 1; i2++)
+				for (size_t i = 0, i2 = 0; i < m_Allocator.m_Size - 1; i2++)
 					if (i2 != index)
-						(*this)[i++] = (*this)[i2];
-				this->Pop();
+						(*m_Allocator)[i++] = (*m_Allocator)[i2];
+				m_Allocator.Pop();
 			}
+		}
+
+		const Ty& operator[](size_t index) const
+		{
+			return m_Allocator[index];
+		}
+
+		Ty& operator[](size_t index)
+		{
+			return m_Allocator[index];
 		}
 
 		Iterator begin()
 		{
-			return Iterator(this->m_Buffer);
+			return Iterator(m_Allocator.m_Buffer);
 		}
 
 		Iterator end()
 		{
-			return Iterator(this->m_Buffer + this->m_Size);
+			return Iterator(m_Allocator.m_Buffer + m_Allocator.m_Size);
 		}
 
-	};
-
-	template<typename Ty>
-	std::ostream& operator << (std::ostream& stream, const Vector<Ty> vec)
-	{
-		stream << "[";
-		if (vec.Size() > 0)
+		virtual String ToString() const override
 		{
-			for (size_t i = 0; i < vec.Size() - 1; i++)
-				stream << ' ' << vec[i] << ",";
-			stream << ' ' << vec[vec.Size() - 1];
+			std::stringstream ss;
+			ss << "[";
+			if (m_Allocator.m_Size > 0)
+			{
+				for (uint32 i = 0; i < m_Allocator.m_Size - 1; i++)
+					ss << ' ' << m_Allocator[i] << ',';
+				ss << ' ' << m_Allocator[m_Allocator.m_Size - 1];
+			}
+			ss << " ]";
+
+			return ss.str().c_str();
 		}
-		stream << " ]";
-
-		return stream;
-	}
+	private:
+		Allocator<Ty> m_Allocator;
+	};
 }
-
-#endif

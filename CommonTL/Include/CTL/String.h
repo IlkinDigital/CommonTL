@@ -57,12 +57,6 @@ namespace CTL
 	class StringView
 	{
 	public:
-		StringView(char* str, size_t size)
-		{
-			m_ViewBuffer = str;
-			m_Size = size;
-		}
-
 		StringView(const char* str)
 		{
 			m_ViewBuffer = str;
